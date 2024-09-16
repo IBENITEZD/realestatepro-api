@@ -9,6 +9,7 @@ use App\Http\Controllers\InmuebleController;
 use App\Http\Controllers\TerceroController;
 use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\CitaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +91,15 @@ Route::controller(ReciboController::class)->prefix('recibos')->group(function ()
 
 });
 
+Route::controller(CitaController::class)->prefix('citas')->group(function () {
+    Route::get('/', 'index');         // Listar todos los inmuebles
+    Route::post('/', 'store');        // Crear un nuevo inmuebles
+    Route::post('/{id}', 'update');    // Actualizar un inmuebles existente
+    Route::put('/{id}', 'put');    // Actualizar un inmuebles existente campos especificos
+    Route::get('/{id}', 'show');      // Obtener un inmuebles por su ID
+    Route::delete('/{id}', 'destroy'); // Eliminar un inmuebles
+
+});
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
