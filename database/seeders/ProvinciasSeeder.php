@@ -72,7 +72,7 @@ class ProvinciasSeeder extends Seeder
 
         Provincia::factory()->create([
             'codigo' => 'P10',
-            'nombre' => 'Seeder Provincia 10',
+            'descripcion' => 'Seeder Provincia 10',
             'id_pais' => 5,
         ]);
     }

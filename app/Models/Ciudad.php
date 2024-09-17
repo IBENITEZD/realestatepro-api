@@ -20,3 +20,4 @@ class Ciudad extends Model
     ];
 }
 
+
