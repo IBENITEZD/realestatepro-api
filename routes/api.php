@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaisController;
 use App\Http\Controllers\ProvinciaController;
+use App\Http\Controllers\CiudadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\InmuebleController;
 use App\Http\Controllers\TerceroController;
@@ -41,13 +42,26 @@ Route::controller(ProvinciaController::class)->prefix('provincias')->group(funct
 
 });
 
+Route::controller(CiudadController::class)->prefix('ciudades')->group(function () {
+    Route::get('/', 'index');         // Listar todos los ciudades
+    Route::post('/', 'store');        // Crear un nuevo ciudades
+    Route::post('/{id}', 'update');    // Actualizar un ciudades existente
+    Route::put('/{id}', 'put');    // Actualizar un ciudades existente campos especificos
+    Route::get('/{id}', 'show');      // Obtener un ciudades por su ID
+    Route::delete('/{id}', 'destroy'); // Eliminar un ciudades
+
+});
+
+
 Route::controller(InmuebleController::class)->prefix('inmuebles')->group(function () {
+    Route::get('/trashed', 'index');         // Ver inmuebles eliminados
     Route::get('/', 'index');         // Listar todos los inmuebles
     Route::post('/', 'store');        // Crear un nuevo inmuebles
     Route::post('/{id}', 'update');    // Actualizar un inmuebles existente
     Route::put('/{id}', 'put');    // Actualizar un inmuebles existente campos especificos
     Route::get('/{id}', 'show');      // Obtener un inmuebles por su ID
-    Route::delete('/{id}', 'destroy'); // Eliminar un inmuebles
+    Route::delete('/{id}', 'softDelete'); //  Soft delete de inmueble
+    Route::patch('/{id}/restore', 'restore'); //// Restaurar inmueble
 
 });
 

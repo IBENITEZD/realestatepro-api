@@ -30,6 +30,24 @@ class InmuebleController extends Controller
 
     }
 
+
+    // registros en al basura
+    public function trashed()
+    {
+        
+        $inmueble = Inmueble::onlyTrashed();
+        
+        $resultResponse = new ResultResponse();
+
+        $resultResponse->setData($inmueble);
+        $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+        $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+        return response()->json($resultResponse);
+
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -206,6 +224,55 @@ class InmuebleController extends Controller
         return response()->json($resultResponse);
     }
     
+    // soft delete
+    public function softDelete($id)
+    {
+        $resultResponse =  new ResultResponse();
+
+        try{
+
+            $inmueble = Inmueble::findOrfail($id);
+            $inmueble->delete();
+
+            $resultResponse->setData($inmueble);
+            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+            
+        }catch(\Exception $e){
+            Log::debug($e);
+            $resultResponse->setData($e);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+        }
+        
+        return response()->json($resultResponse);
+    }
+
+    // restore delete
+    public function restore($id)
+    {
+        $resultResponse =  new ResultResponse();
+
+        try{
+
+            $inmueble = Inmueble::findOrfail($id);
+            $inmueble->withTrashed();
+
+            $resultResponse->setData($inmueble);
+            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+            
+        }catch(\Exception $e){
+            Log::debug($e);
+            $resultResponse->setData($e);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+        }
+        
+        return response()->json($resultResponse);
+    }
+
+
     // delete el pais 
 
     public function destroy($id)
