@@ -11,6 +11,7 @@ use App\Http\Controllers\TerceroController;
 use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\TipoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,7 @@ Route::controller(CiudadController::class)->prefix('ciudades')->group(function (
 Route::controller(InmuebleController::class)->prefix('inmuebles')->group(function () {
     Route::get('/trashed', 'index');         // Ver inmuebles eliminados
     Route::get('/', 'index');         // Listar todos los inmuebles
+    Route::get('/getinmuebles', 'getInmuebles');         // Listar con criterio
     Route::post('/', 'store');        // Crear un nuevo inmuebles
     Route::post('/{id}', 'update');    // Actualizar un inmuebles existente
     Route::put('/{id}', 'put');    // Actualizar un inmuebles existente campos especificos
@@ -112,6 +114,16 @@ Route::controller(CitaController::class)->prefix('citas')->group(function () {
     Route::put('/{id}', 'put');    // Actualizar un inmuebles existente campos especificos
     Route::get('/{id}', 'show');      // Obtener un inmuebles por su ID
     Route::delete('/{id}', 'destroy'); // Eliminar un inmuebles
+
+});
+
+Route::controller(TipoController::class)->prefix('tipos')->group(function () {
+    Route::get('/', 'index');         // Listar todos los tipos
+    Route::post('/', 'store');        // Crear un nuevo tipos
+    Route::post('/{id}', 'update');    // Actualizar un tipos existente
+    Route::put('/{id}', 'put');    // Actualizar un tipos existente campos especificos
+    Route::get('/{id}', 'show');      // Obtener un tipos por su ID
+    Route::delete('/{id}', 'destroy'); // Eliminar un tipos
 
 });
 
