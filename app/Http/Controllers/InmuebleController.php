@@ -33,56 +33,89 @@ class InmuebleController extends Controller
 
     public function getInmuebles(Request $request)
     {
-         // Validar que los parámetros sean opcionales, pero por lo menos uno debe estar presente
-         $validated = $request->validate([
+        
+        // Validar que los parámetros sean opcionales, pero por lo menos uno debe estar presente
+        $validated = $request->validate([
             'id_tipo' => 'nullable|integer',
             'id_ciudad' => 'nullable|integer',
+            'id_propietario' => 'nullable|integer',
             'nuevo_usado' => 'nullable|string|max:50',
+            'disponibilidad' => 'nullable|string|max:2',
             'compra_arriendo' => 'nullable|string|max:50',
+            'page' => 'nullable|integer',         // Añadir validación para paginación
+            'per_page' => 'nullable|integer',     // Añadir validación para número de registros por página
         ]);
 
         // Comprobar que al menos uno de los parámetros esté presente
-        if (!$request->hasAny(['id_tipo', 'id_ciudad', 'nuevo_usado', 'compra_arriendo'])) {
-            return response()->json([
-                'error' => 'Debes ingresar al menos un parámetro de búsqueda.'
-            ], 400); // Código de error 400 para solicitud incorrecta
+        if ($request->hasAny(['id_tipo', 'id_ciudad', 'id_propietario' ,'nuevo_usado', 'compra_arriendo','disponibilidad'])) {
+ 
+           // Construir la consulta dinámicamente
+            $query = Inmueble::query();
+
+            if ($request->filled('id_tipo')) {
+                $query->where('id_tipo', $request->id_tipo);
+            };
+
+            if ($request->filled('id_ciudad')) {
+                $query->where('id_ciudad', $request->id_ciudad);
+            };
+
+            if ($request->filled('id_propietario')) {
+                $query->where('id_propietario', $request->id_propietario);
+            };
+
+            if ($request->filled('nuevo_usado')) {
+                $query->where('nuevo_usado', $request->nuevo_usado);
+            };
+
+            if ($request->filled('compra_arriendo')) {
+                $query->where('compra_arriendo', $request->compra_arriendo);
+            }; 
+
+            if ($request->filled('disponibilidad')) {
+                $query->where('disponibilidad', $request->disponibilidad);
+            };
+
+            //$inmueble = Inmueble::all();
+            // Ejecutar la consulta y obtener los resultados
+            // Obtener los parámetros de paginación, por defecto 15 registros por página si no se envían
+            $perPage = $request->get('per_page', 15); // Por defecto 15 registros por página
+            $inmueble = $query->paginate($perPage);  // Usar paginate() en lugar de get()               
+            //$inmueble = $query->get();
+            $resultResponse = new ResultResponse();    
+            $resultResponse->setData($inmueble->items());  // Pasar solo los elementos de la página actual
+            $resultResponse->setCurrent_page($inmueble->currentPage());  // Pasar solo los elementos de la página actual
+            $resultResponse->setTotal_pages($inmueble->lastPage());  // Pasar solo los elementos de la página actual            
+            $resultResponse->setTotal_items($inmueble->total());  // Total de registros  
+            $resultResponse->setPer_page($inmueble->perPage());  // Registros por página  
+            $resultResponse->setNext_page_url($inmueble->nextPageUrl());  // URL de la próxima página  
+            $resultResponse->setPrev_page_url($inmueble->previousPageUrl());  // URL de la página anterior       
+            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
         }
+        // Comprobar que al menos uno de los parámetros esté presente
+        else{
+            $inmueble = Inmueble::all();
+            $resultResponse = new ResultResponse();    
+            $resultResponse->setData($inmueble);
+            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
 
-        // Construir la consulta dinámicamente
-        $query = Inmueble::query();
+        };
 
-        if ($request->filled('id_tipo')) {
-            $query->where('id_tipo', $request->id_tipo);
-        }
+        return response()->json($resultResponse);
 
-        if ($request->filled('id_ciudad')) {
-            $query->where('id_ciudad', $request->id_ciudad);
-        }
-
-        if ($request->filled('nuevo_usado')) {
-            $query->where('nuevo_usado', $request->nuevo_usado);
-        }
-
-        if ($request->filled('compra_arriendo')) {
-            $query->where('compra_arriendo', $request->compra_arriendo);
-        }
-
-        // Ejecutar la consulta y obtener los resultados
-        $inmuebles = $query->get();
-
-        // Devolver los inmuebles en formato JSON
-        return response()->json($inmuebles);
     }
+    
 
 
     // registros en al basura
     public function trashed()
     {
         
-        $inmueble = Inmueble::onlyTrashed();
-        
+        $inmueble = Inmueble::onlyTrashed();        
         $resultResponse = new ResultResponse();
-
         $resultResponse->setData($inmueble);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
         $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);

@@ -21,7 +21,6 @@ class UserController extends Controller
         $users = User::all();
         
         $resultResponse = new ResultResponse();
-
         $resultResponse->setData($users);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
         $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
@@ -47,26 +46,36 @@ class UserController extends Controller
         $this->validateUser($request);
 
         $resultResponse= new ResultResponse();
-        try{
-            $newUser = new User([
-                'name'=> $request->get('name'),
-                'email'=>  $request->get('email'),
-                'password'=>  $request->get('password')
-            ]);
 
-            $newUser->save();
+        $users = User::where('email', $request->email)->first();
+        if (is_null($users)) {
+            try{
+                $newUser = new User([
+                    'name'=> $request->get('name'),
+                    'email'=>  $request->get('email'),
+                    'password'=>  $request->get('password'),
+                    'espropietario'=>  $request->get('espropietario'),
+                    'doc_identidad'=>  $request->get('doc_identidad')
+                ]);
+                $newUser->save();
+                $resultResponse->setData($newUser);
+                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+                
+            }catch(\Exception $e){
+                Log::debug($e);
+                $resultResponse->setData($e);
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+            }
 
-            $resultResponse->setData($newUser);
-            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
-            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
-            
-        }catch(\Exception $e){
-            Log::debug($e);
-            $resultResponse->setData($e);
+        }else
+        {
+            $users = null;
+            $resultResponse->setData($users);
             $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
-        }
-        
+        } 
         return response()->json($resultResponse);
 
     }
@@ -95,6 +104,7 @@ class UserController extends Controller
         return response()->json($resultResponse);
     }
 
+    
     /**
      * Show the form for editing the specified resource.
      */
@@ -114,13 +124,16 @@ class UserController extends Controller
         $this->validateUser($request);
         $resultResponse =  new ResultResponse();
 
-        try{
+        try
+        {
 
             $user = User::findOrfail($id);
 
             $user->name =  $request->get('name');
             $user->email =  $request->get('email');
             $user->password =  $request->get('password');
+            $user->espropietario =  $request->get('espropietario');
+            $user->doc_identidad =  $request->get('doc_identidad');
 
             $user->save();
 
@@ -152,7 +165,9 @@ class UserController extends Controller
             $user->name =  $request->get('name',$user->name);
             $user->email =  $request->get('email',$user->email);
             $user->password =  $request->get('password',$user->password);
-
+            $user->espropietario =  $request->get('espropietario',$user->espropietario);
+            $user->doc_identidad =  $request->get('doc_identidad',$user->doc_identidad);
+            
             $user->save();
 
             $resultResponse->setData($user);
@@ -169,7 +184,7 @@ class UserController extends Controller
         return response()->json($resultResponse);
     }
     
-    // delete el pais 
+    // delete el users 
 
     public function destroy($id)
     {

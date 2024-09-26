@@ -12,6 +12,7 @@ use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\TipoController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,7 @@ Route::controller(UserController::class)->prefix('users')->group(function () {
     Route::delete('/{id}', 'destroy'); 
 });
 
+
 Route::controller(TerceroController::class)->prefix('terceros')->group(function () {
     Route::get('/', 'index');      
     Route::post('/', 'store');       
@@ -125,6 +127,11 @@ Route::controller(TipoController::class)->prefix('tipos')->group(function () {
     Route::get('/{id}', 'show');      // Obtener un tipos por su ID
     Route::delete('/{id}', 'destroy'); // Eliminar un tipos
 
+});
+
+Route::controller(AuthController::class)->prefix('auth')->group(function () {
+    Route::get('/', 'index');         // Listar todos los tipos
+    Route::get('/login', 'login');        // Crear un nuevo tipos
 });
 
 
