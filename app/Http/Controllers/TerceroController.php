@@ -47,6 +47,27 @@ class TerceroController extends Controller
         $this->validateTercero($request);
 
         $resultResponse= new ResultResponse();
+
+        // Validar si ya existe un tercero con el mismo email o doc_identidad
+        $existingTerceroByEmail = Tercero::where('email', $request->get('email'))->first();
+        $existingTerceroByDocIdentidad = Tercero::where('doc_identidad', $request->get('doc_identidad'))->first();
+
+        // Verificar si ya existe un tercero con el mismo email
+        if ($existingTerceroByEmail) {
+            $resultResponse->setData(['error' => 'Ya existe un tercero con este email: ' . $request->get('email')]);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage('El email ya está en uso.');
+            return response()->json($resultResponse);
+        }
+
+        // Verificar si ya existe un tercero con el mismo documento de identidad
+        if ($existingTerceroByDocIdentidad) {
+            $resultResponse->setData(['error' => 'Ya existe un tercero con este documento de identidad: ' . $request->get('doc_identidad')]);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage('El documento de identidad ya está en uso.');
+            return response()->json($resultResponse);
+        }
+            
         try{
             $newTercero = new Tercero([
                 'doc_identidad'=> $request->get('doc_identidad'),
