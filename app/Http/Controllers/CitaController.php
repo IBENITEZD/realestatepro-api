@@ -15,17 +15,26 @@ class CitaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         
-        $citas = Cita::all();
+        // Obtiene los parámetros de la solicitud o establece valores predeterminados
+        $page = $request->input('page', 1); // Página por defecto es 1
+        $perPage = $request->input('per_page', 10); // Registros por página por defecto es 10
+
+        // Realiza la paginación utilizando los parámetros
+        $citas = Cita::paginate($perPage, ['*'], 'page', $page);
         
         $resultResponse = new ResultResponse();
-
-        $resultResponse->setData($citas);
+        $resultResponse->setData($citas->items());  // Pasar solo los elementos de la página actual
+        $resultResponse->setCurrent_page($citas->currentPage());  // Pasar solo los elementos de la página actual
+        $resultResponse->setTotal_pages($citas->lastPage());  // Pasar solo los elementos de la página actual            
+        $resultResponse->setTotal_items($citas->total());  // Total de registros  
+        $resultResponse->setPer_page($citas->perPage());  // Registros por página  
+        $resultResponse->setNext_page_url($citas->nextPageUrl());  // URL de la próxima página  
+        $resultResponse->setPrev_page_url($citas->previousPageUrl());  // URL de la página anterior       
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
         $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
-
         return response()->json($resultResponse);
 
     }
