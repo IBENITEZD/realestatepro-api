@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Inmueble;
 
 class SearchController extends Controller
 {
@@ -39,7 +40,7 @@ class SearchController extends Controller
                 $query->where($field, 'LIKE', '%' . $value . '%');
             }
         }
-        
+
         // Definir el tamaño de la página, con un valor predeterminado de 10 registros por página
         $perPage = $request->input('per_page', 10);
 
@@ -66,6 +67,54 @@ class SearchController extends Controller
 
         }
         
+        return response()->json($resultResponse);
+    }
+    
+    public function extend(Request $request, $entity)
+    {
+        $resultResponse = new ResultResponse();
+
+         // Obtener el parámetro de búsqueda
+         $searchText = $request->input('query', '');
+
+        if (empty($searchText)) {
+            $resultResponse->setData(['error' => 'Error al realizar la búsqueda.']);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage('Debe ingresar un parámetro de búsqueda.');
+            return response()->json($resultResponse);
+        }
+
+         // Definir el tamaño de la página, con un valor predeterminado de 10 registros por página
+         $perPage = $request->input('per_page', 10);
+
+        try {
+            $results = Inmueble::where('descripcion', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('area_m2', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('direccion', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('num_habitaciones', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('num_banios', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('valor', 'LIKE', '%' . $searchText . '%')
+            ->orWhere('observaciones', 'LIKE', '%' . $searchText . '%')
+            ->paginate($perPage);
+            // Configurar la respuesta con los resultados paginados
+            $resultResponse->setData($results->items());
+            $resultResponse->setCurrent_page($results->currentPage());
+            $resultResponse->setTotal_pages($results->lastPage());
+            $resultResponse->setTotal_items($results->total());
+            $resultResponse->setPer_page($results->perPage());
+            $resultResponse->setNext_page_url($results->nextPageUrl());
+            $resultResponse->setPrev_page_url($results->previousPageUrl());
+            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+        } catch (\Exception $e) {
+            // Manejar errores y registrar el problema
+            Log::error('Error en la búsqueda de inmuebles: ' . $e->getMessage());
+            $resultResponse->setData(['error' => 'Error al realizar la búsqueda.']);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage('Error en la búsqueda.');
+        }
+
         return response()->json($resultResponse);
     }
 }

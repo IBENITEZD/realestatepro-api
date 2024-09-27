@@ -136,6 +136,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 Route::controller(SearchController::class)->prefix('search')->group(function () {
     Route::get('/{entity}', 'search');         // Listar todos los tipos
+    Route::get('/extend/{entity}', 'extend');         // Listar todos los tipos
 });
 
 
