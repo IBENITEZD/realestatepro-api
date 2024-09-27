@@ -13,7 +13,7 @@ use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\TipoController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\SearchController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -132,6 +132,10 @@ Route::controller(TipoController::class)->prefix('tipos')->group(function () {
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::get('/', 'index');         // Listar todos los tipos
     Route::get('/login', 'login');        // Crear un nuevo tipos
+});
+
+Route::controller(SearchController::class)->prefix('search')->group(function () {
+    Route::get('/{entity}', 'search');         // Listar todos los tipos
 });
 
 
