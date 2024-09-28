@@ -41,14 +41,17 @@ class InmuebleController extends Controller
             'id_propietario' => 'nullable|integer',
             'nuevo_usado' => 'nullable|string|max:50',
             'disponibilidad' => 'nullable|string|max:2',
-            'compra_arriendo' => 'nullable|string|max:50',
+            'compra_arriendo' => 'nullable|string|max:50',    
+            'area_m2' => 'nullable|integer',
+            'num_banios' => 'nullable|integer',
+            'num_habitaciones' => 'nullable|integer',
             'page' => 'nullable|integer',         // Añadir validación para paginación
             'per_page' => 'nullable|integer',     // Añadir validación para número de registros por página
         ]);
 
         // Comprobar que al menos uno de los parámetros esté presente
-        if ($request->hasAny(['id_tipo', 'id_ciudad', 'id_propietario' ,'nuevo_usado', 'compra_arriendo','disponibilidad'])) {
- 
+        if ($request->hasAny(['id_tipo', 'id_ciudad', 'id_propietario' ,'nuevo_usado', 'compra_arriendo','disponibilidad','area_m2','num_banios','num_habitaciones'])) {
+
            // Construir la consulta dinámicamente
             $query = Inmueble::query();
 
@@ -74,6 +77,18 @@ class InmuebleController extends Controller
 
             if ($request->filled('disponibilidad')) {
                 $query->where('disponibilidad', $request->disponibilidad);
+            };
+
+            if ($request->filled('area_m2')) {
+                $query->where('area_m2', $request->area_m2);
+            };
+
+            if ($request->filled('num_banios')) {
+                $query->where('num_banios', $request->num_banios);
+            };
+
+            if ($request->filled('num_habitaciones')) {
+                $query->where('num_habitaciones', $request->num_habitaciones);
             };
 
             //$inmueble = Inmueble::all();
