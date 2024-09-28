@@ -74,8 +74,22 @@ class SearchController extends Controller
     {
         $resultResponse = new ResultResponse();
 
-         // Obtener el parámetro de búsqueda
+        // Verificar que el modelo exista
+        $modelClass = 'App\\Models\\' . ucfirst($entity);
+        if (!class_exists($modelClass)) {
+            //return response()->json(['error' => 'Modelo no encontrado'], 404);
+            $results  = ['error' => 'Modelo no encontrado '.$entity];
+            $resultResponse->setData($results);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+            return response()->json($resultResponse);
+        }
+
+        // Obtener el parámetro de búsqueda
          $searchText = $request->input('query', '');
+
+         
+         
 
         if (empty($searchText)) {
             $resultResponse->setData(['error' => 'Error al realizar la búsqueda.']);
@@ -84,18 +98,23 @@ class SearchController extends Controller
             return response()->json($resultResponse);
         }
 
-         // Definir el tamaño de la página, con un valor predeterminado de 10 registros por página
-         $perPage = $request->input('per_page', 10);
+        // Definir el tamaño de la página, con un valor predeterminado de 10 registros por página
+        $perPage = $request->input('per_page', 10);
+        
+        // Obtener todas las columnas de la tabla de 'inmuebles'
+        $columns = Schema::getColumnListing((new $modelClass)->getTable());
 
         try {
-            $results = Inmueble::where('descripcion', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('area_m2', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('direccion', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('num_habitaciones', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('num_banios', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('valor', 'LIKE', '%' . $searchText . '%')
-            ->orWhere('observaciones', 'LIKE', '%' . $searchText . '%')
-            ->paginate($perPage);
+
+            // Construir la consulta dinámica para buscar en todos los campos
+
+            $results = $modelClass::where(function ($q) use ($columns, $searchText) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $searchText . '%');
+                }
+            })->paginate($perPage);
+            
+
             // Configurar la respuesta con los resultados paginados
             $resultResponse->setData($results->items());
             $resultResponse->setCurrent_page($results->currentPage());
@@ -118,3 +137,7 @@ class SearchController extends Controller
         return response()->json($resultResponse);
     }
 }
+
+
+
+
