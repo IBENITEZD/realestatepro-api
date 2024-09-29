@@ -10,6 +10,8 @@ use App\Models\Inmuebles;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash; 
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,7 +24,9 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Test User Seeder 6',
-            'email' => 'testSeeder6@example.com'
+            'email' => 'testSeeder6@example.com',
+            'password'=> Hash::make('1234'), 
+            'espropietario'  => 0,
         ]);       
 
         //Llamar al seeder de la tabla 
@@ -51,6 +55,9 @@ class DatabaseSeeder extends Seeder
 
         //Llamar al seeder de la tabla 
         $this->call(Inmueble_archivosSeeder::class);
+
+        //Llamar al seeder de la tabla 
+        $this->call(UsersSeeder::class);
 
     }
 }
